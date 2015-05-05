@@ -23,7 +23,7 @@ public class BlockIDFinder {
 		}
 	}
 	
-	public int BlockIdOfNode(int node_id) {
+	public static int BlockIdOfNode(int node_id) {
 		int index = node_id/10000;
 		if(block_ids[index] < node_id) {
 			return index+1;
