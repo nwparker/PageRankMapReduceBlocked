@@ -18,6 +18,7 @@ public class BlockIDFinder {
 		    	block_ids[index] = sum;
 		    	index++;
 		    }
+		    block_ids[68] = block_ids[67] * 2;
 		} catch (IOException x) {
 		    System.err.format("IOException: %s%n", x);
 		}
