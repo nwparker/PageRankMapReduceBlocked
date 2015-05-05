@@ -5,7 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 
 public class BlockIDFinder {
-	static int[] block_ids = new int[69];
+	static int[] block_ids = new int[68];
 	
 	public BlockIDFinder() {
 		// initialize by reading blocks.txt and populating block ids array
@@ -18,6 +18,7 @@ public class BlockIDFinder {
 		    	block_ids[index] = sum;
 		    	index++;
 		    }
+		    block_ids[68] = block_ids[67] * 2;
 		} catch (IOException x) {
 		    System.err.format("IOException: %s%n", x);
 		}
