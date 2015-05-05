@@ -10,7 +10,6 @@ import org.apache.hadoop.mapreduce.*;
  * OUT: node id -> pagerank
  */
 public class Reduce extends Reducer<IntWritable, FloatWritable, IntWritable, FloatWritable> {
-    
     public void reduce(IntWritable id, Iterable<FloatWritable> rank_flows, Context context)
     throws IOException, InterruptedException {
         float pagerank = 0;

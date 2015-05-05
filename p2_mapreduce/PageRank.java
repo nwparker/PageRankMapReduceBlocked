@@ -32,7 +32,7 @@ public class PageRank {
 			
 			// Iterate through nodes and update ranks
 			for(Node n: nodes) {
-				int num_outgoing = n.outgoing.size();
+				int num_outgoing = n.outgoing.length;
 
 				// add rank values from incoming boundary edges
 				for(float val: n.incoming) {
@@ -84,31 +84,31 @@ public class PageRank {
 	
 	// Tests
 	public static void main(String[] args) {
-		Node[] nodes = new Node[5];
-		for(int i = 1; i < 4; i++) {
-			ArrayList<Integer> outgoing = new ArrayList<Integer>();
-			outgoing.add(0);
-			outgoing.add(i + 1);
-			nodes[i] = new Node(i, outgoing, null);
-		}
-		ArrayList<Integer> outgoing = new ArrayList<Integer>();
-		outgoing.add(4);
-		nodes[0] = new Node(0, outgoing, null);
-		nodes[4] = new Node(4);
-		
-		Node[] nodes2 = new Node[3];
-		ArrayList<Integer> outgoing2 = new ArrayList<Integer>();
-		ArrayList<Float> incoming2 = new ArrayList<Float>();
-		outgoing2.add(0);
-		incoming2.add(0.3f);
-		nodes2[0] = new Node(0);
-		nodes2[1] = new Node(100, outgoing2, incoming2);
-		nodes2[2] = new Node(2, outgoing2, incoming2);
-		
-		nodes2 = initializeRanks(nodes2);
-		
-		HashMap<Integer, Float> ranks2 = pagerankBoundaries(nodes2);
-		System.out.println(ranks2);
+//		Node[] nodes = new Node[5];
+//		for(int i = 1; i < 4; i++) {
+//			ArrayList<Integer> outgoing = new ArrayList<Integer>();
+//			outgoing.add(0);
+//			outgoing.add(i + 1);
+//			nodes[i] = new Node(i, outgoing, null);
+//		}
+//		ArrayList<Integer> outgoing = new ArrayList<Integer>();
+//		outgoing.add(4);
+//		nodes[0] = new Node(0, outgoing, null);
+//		nodes[4] = new Node(4);
+//		
+//		Node[] nodes2 = new Node[3];
+//		ArrayList<Integer> outgoing2 = new ArrayList<Integer>();
+//		ArrayList<Float> incoming2 = new ArrayList<Float>();
+//		outgoing2.add(0);
+//		incoming2.add(0.3f);
+//		nodes2[0] = new Node(0);
+//		nodes2[1] = new Node(100, outgoing2, incoming2);
+//		nodes2[2] = new Node(2, outgoing2, incoming2);
+//		
+//		nodes2 = initializeRanks(nodes2);
+//		
+//		HashMap<Integer, Float> ranks2 = pagerankBoundaries(nodes2);
+//		System.out.println(ranks2);
 	}
 	
 }

@@ -1,19 +1,15 @@
 package p2_mapreduce;
 
-import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.LineIterator;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.DataOutputBuffer;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.mapreduce.Job;
@@ -21,7 +17,6 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
-import org.apache.hadoop.util.StringUtils;
 
 public class SimpleMapReduce {
     public enum Counter {
@@ -62,47 +57,49 @@ public class SimpleMapReduce {
 		System.out.println("Convergence is below " + CONVERGENCE_THRESHOLD + ", we're done");
 	}
 
-	public static int createInputFile(Path file, Path targetFile)
+	/*
+	 * Create the input file for the mapper from our original nodes.txt
+	 */
+	public static int createInputFile(Path nodes_file, Path targetFile)
 			throws IOException {
 		Configuration conf = new Configuration();
-
-		FileSystem fs = file.getFileSystem(conf);
-
-		List<String> lines = IOUtils.readLines(fs.open(file), "UTF8");
-		
-		int numNodes = lines.size();
-		double initialPageRank = 1.0 / (double) numNodes;
-
-//		PrintWriter writer = new PrintWriter("the-file-name.txt", "UTF-8");
-//		writer.println("The first line");
-//		writer.println("The second line");
-//		writer.close();
-		
+		FileSystem fs = nodes_file.getFileSystem(conf);
 		OutputStream os = fs.create(targetFile);
-		for(String line: lines) {
-			// stuff
-		}
+
+		List<String> node_lines = IOUtils.readLines(fs.open(nodes_file), "UTF8");
+		int num_nodes = node_lines.size();
+		float initial_rank = 1.0f / num_nodes;
 		
-//		LineIterator iter = IOUtils.lineIterator(fs.open(file), "UTF8");
-//		while (iter.hasNext()) {
-//			String line = iter.nextLine();
-//
-//			String[] parts = StringUtils.split(line);
-//			Node node = new Node().setPageRank(initialPageRank)
-//					.setAdjacentNodeNames(
-//							Arrays.copyOfRange(parts, 1, parts.length));
-//			IOUtils.write(parts[0] + '\t' + node.toString() + '\n', os);
-//		}
+		// parse all nodes into Hadoop writeable format
+		for(int i = 0; i < num_nodes; i++) {
+			String[] node_vals = node_lines.get(i).split("$");
+			if (node_vals.length < 2) {
+				System.out.println("Line format was mezzed uppp.");
+				continue;
+			}
+			int id = Integer.parseInt(node_vals[0]);
+			
+			// parse outgoing edges
+			String[] outgoing_vals = node_vals[1].split(" ");
+			int[] outgoing = new int[outgoing_vals.length];
+			for(int k = 0; k < outgoing.length; k++) {
+				outgoing[k] = Integer.parseInt(outgoing_vals[k]);
+			}
+			
+			DataOutputBuffer buffer = new DataOutputBuffer();
+			Node node = new Node(id, initial_rank, outgoing, null);
+			node.write(buffer);
+			buffer.writeTo(os);
+		}
+
 		os.close();
-		return numNodes;
+		return num_nodes;
 	}
 
 	public static double calcPageRank(Path inputPath, Path outputPath,
 			int numNodes) throws Exception {
 		Configuration conf = new Configuration();
 		
-//		conf.setInt(Reduce.CONF_NUM_NODES_GRAPH, numNodes);
-
 		Job job = Job.getInstance(conf, "SimpleMapReduce");
 		job.setJarByClass(SimpleMapReduce.class);
 		job.setMapperClass(Map.class);
@@ -117,22 +114,15 @@ public class SimpleMapReduce {
 		FileInputFormat.addInputPath(job, inputPath);
 		FileOutputFormat.setOutputPath(job, outputPath);
 		
-//		Job job = Job.getInstance(conf, "PageRankJob");
-//		job.setJarByClass(Main.class);
-//		job.setMapperClass(Map.class);
-//		job.setReducerClass(Reduce.class);
 //		job.setInputFormatClass(KeyValueTextInputFormat.class);
 //		job.setMapOutputKeyClass(Text.class);
 //		job.setMapOutputValueClass(Text.class);
-//		FileInputFormat.setInputPaths(job, inputPath);
-//		FileOutputFormat.setOutputPath(job, outputPath);
-
+		
 		if (!job.waitForCompletion(true)) {
 			throw new Exception("Something went wrong with the job");
 		}
 
 		long convergence = job.getCounters().findCounter(Counter.RESIDUALS).getValue();
-//		double convergence = ((double) total_convergence / Reduce.CONVERGENCE_SCALING_FACTOR) / (double) numNodes;
 
 		System.out.println("======================================");
 		System.out.println("=  Num nodes:           " + numNodes);
