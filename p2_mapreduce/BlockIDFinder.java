@@ -5,7 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 
 public class BlockIDFinder {
-	static int[] block_ids = new int[68];
+	static int[] block_ids = new int[69];
 	
 	public BlockIDFinder() {
 		// initialize by reading blocks.txt and populating block ids array
