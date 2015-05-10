@@ -39,7 +39,7 @@ public class BlockedPageRank {
 
 		// temp
 		Path outputDir = new Path("output");
-//		Path inputDir = new Path("input");
+		// Path inputDir = new Path("input");
 		Path inputPath = new Path("nodes_simple.txt");
 		Path originalInput = inputPath;
 		// Path inputFile = new Path("nodes_simple.txt");
@@ -61,18 +61,16 @@ public class BlockedPageRank {
 			System.out.println("=  Output path:  " + jobOutputPath);
 			System.out.println("======================================");
 
-			converged = calcPageRank(inputPath, jobOutputPath, numNodes) < CONVERGENCE_THRESHOLD
-					* numNodes;
+			converged = calcPageRank(inputPath, jobOutputPath, numNodes) < CONVERGENCE_THRESHOLD * numNodes;
 			iter++;
 			// inputPath = new Path(inputDir, String.valueOf(iter));
 			// inputPath.getFileSystem(conf).delete(inputPath, true);
 
 			inputPath = jobOutputPath;
-//			formatInputFile(originalInput, inputPath, inputPath);
+			// formatInputFile(originalInput, inputPath, inputPath);
 			return;
 		}
-		System.out.println("Convergence is below " + CONVERGENCE_THRESHOLD
-				+ ", we're done");
+		System.out.println("Convergence is below " + CONVERGENCE_THRESHOLD + ", we're done");
 	}
 
 	public static int getNumNodes(Path path) throws IOException {
@@ -88,15 +86,14 @@ public class BlockedPageRank {
 	 */
 	public static int formatInputFile(Path originalInput, Path prevOutput,
 			Path newInput) throws IOException {
+		
 		Configuration conf = new Configuration();
 		FileSystem fs = prevOutput.getFileSystem(conf);
 		OutputStream os = fs.create(newInput);
 
 		// Read files
-		List<String> originalNodes = IOUtils.readLines(fs.open(originalInput),
-				"UTF8");
-		List<String> prevOutputNodes = IOUtils.readLines(
-				fs.open(originalInput), "UTF8");
+		List<String> originalNodes = IOUtils.readLines(fs.open(originalInput), "UTF8");
+		List<String> prevOutputNodes = IOUtils.readLines(fs.open(originalInput), "UTF8");
 
 		// parse all nodes into Hadoop writeable format
 		for (int i = 0; i < originalNodes.size(); i++) {
@@ -122,6 +119,7 @@ public class BlockedPageRank {
 
 	public static double calcPageRank(Path inputPath, Path outputPath,
 			int numNodes) throws Exception {
+		
 		Configuration conf = new Configuration();
 		conf.setInt("num_nodes", numNodes);
 
@@ -147,13 +145,13 @@ public class BlockedPageRank {
 			throw new Exception("Something went wrong with the job");
 		}
 		
+		// reset residuals counter
 		org.apache.hadoop.mapreduce.Counter residuals = job.getCounters().findCounter(Counter.RESIDUALS);
 		long convergence = residuals.getValue();
 		residuals.setValue(0);
 
 		System.out.println("======================================");
 		System.out.println("=  Num nodes:           " + numNodes);
-		// System.out.println("=  Summed convergence:  " + total_convergence);
 		System.out.println("=  Convergence:         " + convergence);
 		System.out.println("======================================");
 
