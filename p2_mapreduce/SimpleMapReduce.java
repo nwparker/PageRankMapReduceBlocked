@@ -139,8 +139,9 @@ public class SimpleMapReduce {
 		if (!job.waitForCompletion(true)) {
 			throw new Exception("Something went wrong with the job");
 		}
-
-		long convergence = job.getCounters().findCounter(Counter.RESIDUALS).getValue();
+		org.apache.hadoop.mapreduce.Counter residuals = job.getCounters().findCounter(Counter.RESIDUALS);
+		long convergence = residuals.getValue();
+		residuals.setValue(0);
 
 		System.out.println("======================================");
 		System.out.println("=  Num nodes:           " + numNodes);
