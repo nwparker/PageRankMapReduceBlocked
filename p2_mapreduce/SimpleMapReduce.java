@@ -22,6 +22,8 @@ import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 public class SimpleMapReduce {
 	public enum Counter {
@@ -35,6 +37,7 @@ public class SimpleMapReduce {
 	public static void main(String[] args) throws Exception {
 		Configuration conf = new Configuration();
 		BasicConfigurator.configure();
+		Logger.getRootLogger().setLevel(Level.INFO);
 		// Path outputDir = new Path(args[1]);
 		// Path inputPath = new Path(outputDir, "nodes_simple.txt");
 
@@ -131,7 +134,7 @@ public class SimpleMapReduce {
 		job.setReducerClass(Reduce.class);
 
 		job.setOutputKeyClass(IntWritable.class);
-		job.setOutputValueClass(FloatWritable.class);
+		job.setOutputValueClass(Node.class);
 
 		job.setInputFormatClass(TextInputFormat.class);
 		// job.setInputFormatClass(SequenceFileAsBinaryInputFormat.class);
