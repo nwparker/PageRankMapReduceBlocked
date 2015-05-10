@@ -60,12 +60,7 @@ public class Node implements Writable {
 		}
 		this.incoming = incoming;
 		
-		//get is_orig
-		if (mySplit[4].equals("1"))
-			this.is_original = true;
-		else
-			this.is_original = false;
-		
+		this.is_original = false;
 	}
 	
 	
@@ -96,12 +91,6 @@ public class Node implements Writable {
 			}
 			sb.deleteCharAt(sb.length()-1);
 		}
-		sb.append(DELIM);
-		
-		if (this.is_original)
-			sb.append("1");
-		else
-			sb.append("0");
 		return sb.toString();
 	}
 
