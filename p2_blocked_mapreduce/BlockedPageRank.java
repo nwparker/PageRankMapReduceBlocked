@@ -21,13 +21,13 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-public class SimpleMapReduce {
+public class BlockedPageRank {
 	public enum Counter {
 		RESIDUALS
 	}
 
 	private static final double CONVERGENCE_THRESHOLD = 0.001;
-	private static final Log LOG = LogFactory.getLog(SimpleMapReduce.class);
+	private static final Log LOG = LogFactory.getLog(BlockedPageRank.class);
 
 	public static void main(String[] args) throws Exception {
 		Configuration conf = new Configuration();
@@ -126,7 +126,7 @@ public class SimpleMapReduce {
 		conf.setInt("num_nodes", numNodes);
 
 		Job job = Job.getInstance(conf, "SimpleMapReduce");
-		job.setJarByClass(SimpleMapReduce.class);
+		job.setJarByClass(BlockedPageRank.class);
 		job.setMapperClass(Map.class);
 		job.setReducerClass(Reduce.class);
 

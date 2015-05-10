@@ -1,3 +1,4 @@
+package p2_mapreduce;
 import java.io.IOException;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.mapreduce.Mapper;

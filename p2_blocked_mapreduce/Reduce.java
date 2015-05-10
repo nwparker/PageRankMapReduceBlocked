@@ -1,3 +1,6 @@
+package p2_mapreduce;
+import java.io.IOException;
+
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -10,7 +13,7 @@ public class Reduce extends Reducer<IntWritable, Node, IntWritable, FloatWritabl
 	
     public void reduce(IntWritable id, Iterable<Node> nodes, Context context)
     throws IOException, InterruptedException {
-    	HashMap<Integer, Float> node_ranks = pagerankBoundaries(nodes);
+    	HashMap<Integer, Float> node_ranks = PageRank.pagerankBoundaries(nodes);
     	
     	for(Map.Entry<Integer, Float> entry : node_ranks.entrySet()){
     		IntWritable nodeID = new IntWritable(entry.getKey());
