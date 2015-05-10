@@ -12,7 +12,8 @@ public class Node implements Writable {
 	protected float rank;					// node's current pagerank
 	protected int[] outgoing;	// all outgoing edges
 	protected float[] incoming;	// incoming pagerank VALUES from other blocks
-
+	protected boolean is_original;	// indicates the node is the original node
+	
 	public Node(int Id, float rank, int[] outgoing, float[] incoming) {
 		this.Id = Id;
 		this.rank = rank;
@@ -46,6 +47,7 @@ public class Node implements Writable {
 		for(int i = 0; i < incoming_size; i++) {
 			incoming[i] = in.readFloat();
 		}
+		is_original = in.readBoolean();
 	}
 
 	@Override
@@ -56,11 +58,11 @@ public class Node implements Writable {
 		for(int i: outgoing) {
 			out.writeInt(i);
 		}
-		System.out.println(incoming);
 
 		out.writeInt(incoming.length);
 		for(float f: incoming) {
 			out.writeFloat(f);
 		}
+		out.writeBoolean(is_original);
 	}
 }
