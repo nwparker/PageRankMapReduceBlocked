@@ -39,7 +39,7 @@ public class SimpleMapReduce {
 
 		// temp
 		Path outputDir = new Path("output");
-		Path inputDir = new Path("input");
+//		Path inputDir = new Path("input");
 		Path inputPath = new Path("nodes_simple.txt");
 		Path originalInput = inputPath;
 		// Path inputFile = new Path("nodes_simple.txt");
@@ -146,9 +146,10 @@ public class SimpleMapReduce {
 		if (!job.waitForCompletion(true)) {
 			throw new Exception("Something went wrong with the job");
 		}
-
-		long convergence = job.getCounters().findCounter(Counter.RESIDUALS)
-				.getValue();
+		
+		org.apache.hadoop.mapreduce.Counter residuals = job.getCounters().findCounter(Counter.RESIDUALS);
+		long convergence = residuals.getValue();
+		residuals.setValue(0);
 
 		System.out.println("======================================");
 		System.out.println("=  Num nodes:           " + numNodes);

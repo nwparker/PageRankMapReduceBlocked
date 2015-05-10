@@ -9,7 +9,7 @@ import org.apache.hadoop.mapreduce.*;
  * IN: node id -> list of rank flows
  * OUT: node id -> pagerank
  */
-public class Reduce extends Reducer<IntWritable, Node, IntWritable, FloatWritable> {
+public class Reduce extends Reducer<IntWritable, Node, IntWritable, Node> {
 	
 	private static final float SCALING = 1000;
 	private static final float DAMPING_FACTOR = 0.75f;
@@ -20,11 +20,14 @@ public class Reduce extends Reducer<IntWritable, Node, IntWritable, FloatWritabl
     	int num_nodes = context.getConfiguration().getInt("num_nodes", -1); // should never be the default of -1
     	float original_pagerank = 0;
         float new_pagerank = 0;
+        Node original = null;
         
         // sum up flow from other nodes for this node
         for (Node node: incoming_nodes)
-        	if (node.is_original)
+        	if (node.is_original) {
+        		original = node;
         		original_pagerank = node.rank;
+        	}
         	else
         		new_pagerank += node.rank;
         
@@ -33,7 +36,8 @@ public class Reduce extends Reducer<IntWritable, Node, IntWritable, FloatWritabl
         new_pagerank = damping_factor + (DAMPING_FACTOR * new_pagerank);
         
         // emit node and new page rank
-        context.write(node_id, new FloatWritable(new_pagerank));
+        original.rank = new_pagerank;
+        context.write(node_id, original);
         
         // update the residuals
         long delta = (long) Math.abs(SCALING*((original_pagerank - new_pagerank) / original_pagerank));
