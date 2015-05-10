@@ -23,8 +23,6 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.log4j.BasicConfigurator;
 
-import com.amazonaws.services.elastictranscoder.model.JobOutput;
-
 public class SimpleMapReduce {
 	public enum Counter {
 		RESIDUALS
@@ -150,9 +148,10 @@ public class SimpleMapReduce {
 			throw new Exception("Something went wrong with the job");
 		}
 
-		long convergence = job.getCounters().findCounter(Counter.RESIDUALS)
-				.getValue();
-
+		org.apache.hadoop.mapreduce.Counter residuals = job.getCounters().findCounter(Counter.RESIDUALS);
+		long convergence = residuals.getValue();
+		residuals.setValue(0);
+		
 		System.out.println("======================================");
 		System.out.println("=  Num nodes:           " + numNodes);
 		// System.out.println("=  Summed convergence:  " + total_convergence);
