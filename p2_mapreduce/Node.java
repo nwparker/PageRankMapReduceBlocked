@@ -14,6 +14,8 @@ public class Node implements Writable {
 	protected float[] incoming;	// incoming pagerank VALUES from other blocks
 	protected boolean is_original;	// indicates the node is the original node
 	
+	public Node(){}
+	
 	public Node(int Id, float rank, int[] outgoing, float[] incoming) {
 		this.Id = Id;
 		this.rank = rank;

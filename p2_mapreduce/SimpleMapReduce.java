@@ -1,6 +1,5 @@
 package p2_mapreduce;
 
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
@@ -11,13 +10,10 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.DataOutputBuffer;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.mapred.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.input.SequenceFileAsBinaryInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
@@ -30,7 +26,6 @@ public class SimpleMapReduce {
 		RESIDUALS
 	}
 
-	private static final int MAX_ITERATIONS = 100;
 	private static final double CONVERGENCE_THRESHOLD = 0.001;
 	private static final Log LOG = LogFactory.getLog(SimpleMapReduce.class);
 
@@ -38,6 +33,7 @@ public class SimpleMapReduce {
 		Configuration conf = new Configuration();
 		BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.INFO);
+
 		// Path outputDir = new Path(args[1]);
 		// Path inputPath = new Path(outputDir, "nodes_simple.txt");
 
@@ -67,12 +63,13 @@ public class SimpleMapReduce {
 
 			converged = calcPageRank(inputPath, jobOutputPath, numNodes) < CONVERGENCE_THRESHOLD
 					* numNodes;
-			// inputPath = jobOutputPath;
 			iter++;
-			inputPath = new Path(inputDir, String.valueOf(iter));
-			inputPath.getFileSystem(conf).delete(inputPath, true);
-			
-			formatInputFile(originalInput, jobOutputPath, inputPath);
+			// inputPath = new Path(inputDir, String.valueOf(iter));
+			// inputPath.getFileSystem(conf).delete(inputPath, true);
+
+			inputPath = jobOutputPath;
+//			formatInputFile(originalInput, inputPath, inputPath);
+			return;
 		}
 		System.out.println("Convergence is below " + CONVERGENCE_THRESHOLD
 				+ ", we're done");
@@ -115,7 +112,7 @@ public class SimpleMapReduce {
 			}
 
 			// Add the ranks to the original line
-			String newLine = originalLine + "$" + prevVals[1];
+			String newLine = originalLine + '$' + prevVals[1] + '\n';
 			IOUtils.write(newLine, os);
 		}
 
@@ -134,27 +131,25 @@ public class SimpleMapReduce {
 		job.setReducerClass(Reduce.class);
 
 		job.setOutputKeyClass(IntWritable.class);
-		job.setOutputValueClass(Node.class);
+		job.setOutputValueClass(FloatWritable.class);
 
 		job.setInputFormatClass(TextInputFormat.class);
-		// job.setInputFormatClass(SequenceFileAsBinaryInputFormat.class);
 		job.setOutputFormatClass(TextOutputFormat.class);
 
 		FileInputFormat.addInputPath(job, inputPath);
 		FileOutputFormat.setOutputPath(job, outputPath);
 
 		// job.setInputFormatClass(KeyValueTextInputFormat.class);
-		// job.setMapOutputKeyClass(Text.class);
-		// job.setMapOutputValueClass(Text.class);
+		job.setMapOutputKeyClass(IntWritable.class);
+		job.setMapOutputValueClass(Node.class);
 
 		if (!job.waitForCompletion(true)) {
 			throw new Exception("Something went wrong with the job");
 		}
 
-		org.apache.hadoop.mapreduce.Counter residuals = job.getCounters().findCounter(Counter.RESIDUALS);
-		long convergence = residuals.getValue();
-		residuals.setValue(0);
-		
+		long convergence = job.getCounters().findCounter(Counter.RESIDUALS)
+				.getValue();
+
 		System.out.println("======================================");
 		System.out.println("=  Num nodes:           " + numNodes);
 		// System.out.println("=  Summed convergence:  " + total_convergence);
