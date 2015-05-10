@@ -83,7 +83,7 @@ public class PageRank {
 	}
 	
 	// Tests
-	public static void main(String[] args) {
+//	public static void main(String[] args) {
 //		Node[] nodes = new Node[5];
 //		for(int i = 1; i < 4; i++) {
 //			ArrayList<Integer> outgoing = new ArrayList<Integer>();
@@ -109,6 +109,6 @@ public class PageRank {
 //		
 //		HashMap<Integer, Float> ranks2 = pagerankBoundaries(nodes2);
 //		System.out.println(ranks2);
-	}
+//	}
 	
 }

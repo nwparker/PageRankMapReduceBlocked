@@ -67,14 +67,14 @@ public class SimpleMapReduce {
 		Configuration conf = new Configuration();
 		FileSystem fs = nodes_file.getFileSystem(conf);
 		OutputStream os = fs.create(targetFile);
-
+		System.out.println(fs);
 		List<String> node_lines = IOUtils.readLines(fs.open(nodes_file), "UTF8");
 		int num_nodes = node_lines.size();
 		float initial_rank = 1.0f / num_nodes;
 		
 		// parse all nodes into Hadoop writeable format
 		for(int i = 0; i < num_nodes; i++) {
-			String[] node_vals = node_lines.get(i).split("$");
+			String[] node_vals = node_lines.get(i).split("\\$");
 			if (node_vals.length < 2) {
 				System.out.println("Line format was mezzed uppp.");
 				continue;
@@ -89,6 +89,8 @@ public class SimpleMapReduce {
 			}
 			
 			DataOutputBuffer buffer = new DataOutputBuffer();
+			System.out.println(buffer);
+
 			Node node = new Node(id, initial_rank, outgoing, null);
 			node.write(buffer);
 			buffer.writeTo(os);

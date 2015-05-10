@@ -17,7 +17,10 @@ public class Node implements Writable {
 		this.Id = Id;
 		this.rank = rank;
 		if(outgoing != null) this.outgoing = outgoing;
+		else this.outgoing = new int[] {};
+		
 		if(incoming != null) this.incoming = incoming;
+		else this.incoming = new float[] {};
 	}
 	
 	public Node(int Id) {
@@ -53,6 +56,8 @@ public class Node implements Writable {
 		for(int i: outgoing) {
 			out.writeInt(i);
 		}
+		System.out.println(incoming);
+
 		out.writeInt(incoming.length);
 		for(float f: incoming) {
 			out.writeFloat(f);
