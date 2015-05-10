@@ -5,6 +5,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.io.Writable;
 
 public class Node implements Writable {
@@ -13,6 +14,9 @@ public class Node implements Writable {
 	protected int[] outgoing;	// all outgoing edges
 	protected float[] incoming;	// incoming pagerank VALUES from other blocks
 	protected boolean is_original;	// indicates the node is the original node
+	
+	public static final char DELIM = ',';
+	public static final char DELIM2 = ' ';
 	
 	public Node(){}
 	
@@ -32,6 +36,62 @@ public class Node implements Writable {
 	
 	public int getBlockID() {
 		return BlockIDFinder.BlockIdOfNode(this.Id);
+	}
+	
+	//Reconstruct from toString
+	public Node(String nodeStr){
+		String[] mySplit = nodeStr.split(",");
+		this.Id = Integer.parseInt(mySplit[0]);
+		this.rank = Float.parseFloat(mySplit[1]);
+		
+		//get outgoing
+		String [] outgoing_str = mySplit[2].split(" ");
+		int[] outgoing = new int[outgoing_str.length];
+		for (int i=0; i<outgoing_str.length; i++){
+			outgoing[i] = Integer.parseInt(outgoing_str[i]);
+		}
+		this.outgoing = outgoing;
+		
+		//get incoming
+		String [] incoming_str = mySplit[3].split(" ");
+		float[] incoming = new float[incoming_str.length];
+		for (int i=0; i<incoming_str.length; i++){
+			incoming[i] = Float.parseFloat(incoming_str[i]);
+		}
+		this.incoming = incoming;
+		
+		this.is_original = false;
+	}
+	
+	
+	@Override
+	public String toString() {
+		/*
+		 * ID, rank, outgoing(space delim), incoming(space delim), is_original
+		 */
+		StringBuilder sb = new StringBuilder();
+		sb.append(this.Id);
+		sb.append(DELIM);
+		sb.append(this.rank);
+		sb.append(DELIM);
+		//convert outgoing edges
+		if (this.outgoing.length > 0){
+			for(int edge : this.outgoing){
+				sb.append(edge);
+				sb.append(DELIM2);
+			}
+			sb.deleteCharAt(sb.length()-1);
+		}
+		sb.append(DELIM);
+		//convert incoming values
+		if (this.incoming.length > 0){
+			for(float income: this.incoming){
+				sb.append(income);
+				sb.append(DELIM2);
+			}
+			sb.deleteCharAt(sb.length()-1);
+		}
+		return sb.toString();
 	}
 
 	@Override
