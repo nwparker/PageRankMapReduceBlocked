@@ -16,7 +16,7 @@ public class Map extends Mapper<LongWritable, Text, IntWritable, Node> {
 
     public void map(LongWritable key, Text node, Context context) throws IOException, InterruptedException {    	
 		// Create the node object
-		Node node_obj = new Node(node.toString());    	
+		Node node_obj = new Node(node.toString());
     	
 		// Emit the original node to keep track of its previous PR
 		node_obj.is_original = true;
