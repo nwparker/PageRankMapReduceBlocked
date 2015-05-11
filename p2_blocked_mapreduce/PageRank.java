@@ -2,6 +2,7 @@ package p2_mapreduce;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 public class PageRank {
 	private static final int MAX_ITERATIONS = 100;
@@ -83,32 +84,29 @@ public class PageRank {
 	}
 	
 	// Tests
-//	public static void main(String[] args) {
-//		Node[] nodes = new Node[5];
-//		for(int i = 1; i < 4; i++) {
-//			ArrayList<Integer> outgoing = new ArrayList<Integer>();
-//			outgoing.add(0);
-//			outgoing.add(i + 1);
-//			nodes[i] = new Node(i, outgoing, null);
-//		}
-//		ArrayList<Integer> outgoing = new ArrayList<Integer>();
-//		outgoing.add(4);
-//		nodes[0] = new Node(0, outgoing, null);
-//		nodes[4] = new Node(4);
-//		
-//		Node[] nodes2 = new Node[3];
-//		ArrayList<Integer> outgoing2 = new ArrayList<Integer>();
-//		ArrayList<Float> incoming2 = new ArrayList<Float>();
-//		outgoing2.add(0);
-//		incoming2.add(0.3f);
-//		nodes2[0] = new Node(0);
-//		nodes2[1] = new Node(100, outgoing2, incoming2);
-//		nodes2[2] = new Node(2, outgoing2, incoming2);
-//		
-//		nodes2 = initializeRanks(nodes2);
-//		
-//		HashMap<Integer, Float> ranks2 = pagerankBoundaries(nodes2);
-//		System.out.println(ranks2);
-//	}
+	public static void main(String[] args) {
+		System.out.println("test");
+		
+		Node[] nodes = new Node[8];
+		nodes[0] = new Node("1,0.125,2 3 4,");
+		nodes[1] = new Node("2,0.125,1,");
+		nodes[2] = new Node("3,0.125,1,");
+		nodes[3] = new Node("4,0.125,1 5 6 7 8,");
+		nodes[4] = new Node("5,0.125,,");
+		nodes[5] = new Node("6,0.125,,");
+		nodes[6] = new Node("7,0.125,,");
+		nodes[7] = new Node("8,0.125,,");
+		
+		HashMap<Integer, Float> ranks2 = pagerankBoundaries(nodes);
+		System.out.println(ranks2);
+		
+		//try to sum
+		float sum = 0;
+    	for(Entry<Integer, Float> entry : ranks2.entrySet()) {
+    		sum += entry.getValue();
+    	}
+    	System.out.println("sum= "+sum);
+
+	}
 	
 }
