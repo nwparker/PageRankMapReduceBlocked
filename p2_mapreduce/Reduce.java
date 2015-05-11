@@ -2,15 +2,18 @@ package p2_mapreduce;
 
 import java.io.IOException;
 
-import org.apache.hadoop.io.*;
-import org.apache.hadoop.mapreduce.*;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.mapreduce.Reducer;
 
 /*
  * IN: node id -> list of rank flows
  * OUT: node id -> pagerank
  */
 public class Reduce extends Reducer<IntWritable, Node, IntWritable, Node> {
-	
+	private static final Log LOG = LogFactory.getLog(Reduce.class);
+
 	private static final float SCALING = 1000;
 	private static final float DAMPING_FACTOR = 0.75f;
 	
@@ -40,6 +43,7 @@ public class Reduce extends Reducer<IntWritable, Node, IntWritable, Node> {
         // emit node and new page rank
         if(original != null) {
 	        original.rank = new_pagerank;
+	        LOG.info("Outgoing " + original.toString());
 	        context.write(node_id, original);
 	        
 	        // update the residuals
