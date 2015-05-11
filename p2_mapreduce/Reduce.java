@@ -26,9 +26,9 @@ public class Reduce extends Reducer<IntWritable, Node, IntWritable, Node> {
         Node original = null;
         
         // sum up flow from other nodes for this node
-        LOG.info("RECIEVING NODES IN REDUCE" + node_id.get());
+//        LOG.info("RECIEVING NODES IN REDUCE" + node_id.get());
         for (Node node: incoming_nodes) {
-        	LOG.info(node.rank);
+//        	LOG.info(node.rank);
         	if (node.is_original) {
     			// copy the node as original
         		original = new Node(node.toString());
