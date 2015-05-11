@@ -41,13 +41,16 @@ public class PageRank {
 				}
 				
 				// propagate rank. if no outgoing edges, distribute evenly to all nodes
+				float out_flow;
 				if (num_outgoing > 0) {
 					for(int target_id: n.outgoing) {
-						new_ranks.put(target_id, new_ranks.get(target_id) + (float)(DAMPING_FACTOR * cur_ranks.get(n.Id) / num_outgoing));
+						out_flow = (float)(DAMPING_FACTOR * cur_ranks.get(n.Id) / num_outgoing);
+						new_ranks.put(target_id, new_ranks.get(target_id) + out_flow);
 					}
 				} else {
 					for(Node n2: nodes) {
-						new_ranks.put(n2.Id, new_ranks.get(n2.Id) + (float)(DAMPING_FACTOR * cur_ranks.get(n.Id) / num_nodes));
+						out_flow = (float)(DAMPING_FACTOR * cur_ranks.get(n.Id) / num_nodes);
+						new_ranks.put(n2.Id, new_ranks.get(n2.Id) + out_flow);
 					}
 				}
 			}
@@ -84,29 +87,29 @@ public class PageRank {
 	}
 	
 	// Tests
-	public static void main(String[] args) {
-		System.out.println("test");
-		
-		Node[] nodes = new Node[8];
-		nodes[0] = new Node("1,0.125,2 3 4,");
-		nodes[1] = new Node("2,0.125,1,");
-		nodes[2] = new Node("3,0.125,1,");
-		nodes[3] = new Node("4,0.125,1 5 6 7 8,");
-		nodes[4] = new Node("5,0.125,,");
-		nodes[5] = new Node("6,0.125,,");
-		nodes[6] = new Node("7,0.125,,");
-		nodes[7] = new Node("8,0.125,,");
-		
-		HashMap<Integer, Float> ranks2 = pagerankBoundaries(nodes);
-		System.out.println(ranks2);
-		
-		//try to sum
-		float sum = 0;
-    	for(Entry<Integer, Float> entry : ranks2.entrySet()) {
-    		sum += entry.getValue();
-    	}
-    	System.out.println("sum= "+sum);
-
-	}
+//	public static void main(String[] args) {
+//		System.out.println("test");
+//		
+//		Node[] nodes = new Node[8];
+//		nodes[0] = new Node("1,0.125,2 3 4,");
+//		nodes[1] = new Node("2,0.125,1,");
+//		nodes[2] = new Node("3,0.125,1,");
+//		nodes[3] = new Node("4,0.125,1 5 6 7 8,");
+//		nodes[4] = new Node("5,0.125,,");
+//		nodes[5] = new Node("6,0.125,,");
+//		nodes[6] = new Node("7,0.125,,");
+//		nodes[7] = new Node("8,0.125,,");
+//		
+//		HashMap<Integer, Float> ranks2 = pagerankBoundaries(nodes);
+//		System.out.println(ranks2);
+//		
+//		//try to sum
+//		float sum = 0;
+//    	for(Entry<Integer, Float> entry : ranks2.entrySet()) {
+//    		sum += entry.getValue();
+//    	}
+//    	System.out.println("sum= "+sum);
+//
+//	}
 	
 }
