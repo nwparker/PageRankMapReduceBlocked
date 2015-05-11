@@ -26,9 +26,12 @@ public class Reduce extends Reducer<IntWritable, Node, IntWritable, Node> {
         Node original = null;
         
         // sum up flow from other nodes for this node
+        LOG.info("RECIEVING NODES IN REDUCE" + node_id.get());
         for (Node node: incoming_nodes) {
+        	LOG.info(node.rank);
         	if (node.is_original) {
-        		original = node;
+    			// copy the node as original
+        		original = new Node(node.toString());
         		original_pagerank = node.rank;
         	}
         	else {
@@ -43,9 +46,9 @@ public class Reduce extends Reducer<IntWritable, Node, IntWritable, Node> {
         // emit node and new page rank
         if(original != null) {
 	        original.rank = new_pagerank;
-	        LOG.info("Outgoing " + original.toString());
 	        context.write(node_id, original);
-	        
+	        LOG.info("NEW RANK " + original.rank);
+
 	        // update the residuals
 	        long delta = (long) Math.abs(SCALING*((original_pagerank - new_pagerank) / original_pagerank));
 	        context.getCounter(SimpleMapReduce.Counter.RESIDUALS).increment(delta);
