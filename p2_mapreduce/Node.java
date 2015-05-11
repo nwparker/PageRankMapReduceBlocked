@@ -44,7 +44,7 @@ public class Node implements Writable {
 	
 	//Reconstruct from toString
 	public Node(String nodeStr){		
-		String[] mySplit = nodeStr.split("\t")[1].split(",");
+		String[] mySplit = nodeStr.split(",");
 		
 		this.Id = Integer.parseInt(mySplit[0]);
 		this.rank = Float.parseFloat(mySplit[1]);
