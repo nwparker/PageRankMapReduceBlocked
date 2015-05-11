@@ -34,18 +34,13 @@ public class SimpleMapReduce {
 		BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.INFO);
 
-		// Path outputDir = new Path(args[1]);
-		// Path inputPath = new Path(outputDir, "nodes_simple.txt");
+		 Path inputPath = new Path(args[0]);
+		 Path outputDir = new Path(args[1]);
 
 		// temp
-		Path outputDir = new Path("output");
-//		Path inputDir = new Path("input");
-		Path inputPath = new Path("nodes_simple_test1.txt");
+//		Path outputDir = new Path("output");
+//		Path inputPath = new Path("nodes_simple_test1.txt");
 		Path originalInput = inputPath;
-		// Path inputFile = new Path("nodes_simple.txt");
-
-		// outputDir.getFileSystem(conf).delete(outputDir, true);
-		// outputDir.getFileSystem(conf).mkdirs(outputDir);
 
 		int numNodes = getNumNodes(originalInput);
 
@@ -63,12 +58,8 @@ public class SimpleMapReduce {
 
 			converged = calcPageRank(inputPath, jobOutputPath, numNodes) < CONVERGENCE_THRESHOLD
 					* numNodes;
-			iter++;
-			// inputPath = new Path(inputDir, String.valueOf(iter));
-			// inputPath.getFileSystem(conf).delete(inputPath, true);
-
 			inputPath = jobOutputPath;
-//			formatInputFile(originalInput, inputPath, inputPath);
+			iter++;
 		}
 		System.out.println("Convergence is below " + CONVERGENCE_THRESHOLD
 				+ ", we're done");
@@ -79,44 +70,6 @@ public class SimpleMapReduce {
 		FileSystem fs = path.getFileSystem(conf);
 		List<String> lines = IOUtils.readLines(fs.open(path));
 		return lines.size();
-	}
-
-	/*
-	 * Create the input file for the mapper from our original nodes.txt and
-	 * updated pageranks
-	 */
-	public static int formatInputFile(Path originalInput, Path prevOutput,
-			Path newInput) throws IOException {
-		Configuration conf = new Configuration();
-		FileSystem fs = prevOutput.getFileSystem(conf);
-		OutputStream os = fs.create(newInput);
-
-		// Read files
-		List<String> originalNodes = IOUtils.readLines(fs.open(originalInput),
-				"UTF8");
-		List<String> prevOutputNodes = IOUtils.readLines(
-				fs.open(originalInput), "UTF8");
-
-		// parse all nodes into Hadoop writeable format
-		for (int i = 0; i < originalNodes.size(); i++) {
-			if (i % 100000 == 0) {
-				System.out.println("writing node " + i);
-			}
-			String originalLine = originalNodes.get(i).trim();
-			String[] prevVals = prevOutputNodes.get(i).split("\\$");
-
-			if (prevVals.length < 2) {
-				System.out.println("Line format was mezzed uppp.");
-				continue;
-			}
-
-			// Add the ranks to the original line
-			String newLine = originalLine + '$' + prevVals[1] + '\n';
-			IOUtils.write(newLine, os);
-		}
-
-		os.close();
-		return originalNodes.size();
 	}
 
 	public static double calcPageRank(Path inputPath, Path outputPath,
@@ -138,7 +91,6 @@ public class SimpleMapReduce {
 		FileInputFormat.addInputPath(job, inputPath);
 		FileOutputFormat.setOutputPath(job, outputPath);
 
-		// job.setInputFormatClass(KeyValueTextInputFormat.class);
 		job.setMapOutputKeyClass(IntWritable.class);
 		job.setMapOutputValueClass(Node.class);
 
