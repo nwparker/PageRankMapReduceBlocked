@@ -23,24 +23,28 @@ public class Reduce extends Reducer<IntWritable, Node, IntWritable, Node> {
         Node original = null;
         
         // sum up flow from other nodes for this node
-        for (Node node: incoming_nodes)
+        for (Node node: incoming_nodes) {
         	if (node.is_original) {
         		original = node;
         		original_pagerank = node.rank;
         	}
-        	else
+        	else {
         		new_pagerank += node.rank;
+        	}
+        }
         
         // include the damping factor in new pagerank
         float damping_factor = (1 - DAMPING_FACTOR) / (float) num_nodes;
         new_pagerank = damping_factor + (DAMPING_FACTOR * new_pagerank);
         
         // emit node and new page rank
-        original.rank = new_pagerank;
-        context.write(node_id, original);
-        
-        // update the residuals
-        long delta = (long) Math.abs(SCALING*((original_pagerank - new_pagerank) / original_pagerank));
-        context.getCounter(SimpleMapReduce.Counter.RESIDUALS).increment(delta);
+        if(original != null) {
+	        original.rank = new_pagerank;
+	        context.write(node_id, original);
+	        
+	        // update the residuals
+	        long delta = (long) Math.abs(SCALING*((original_pagerank - new_pagerank) / original_pagerank));
+	        context.getCounter(SimpleMapReduce.Counter.RESIDUALS).increment(delta);
+        }
     }
 }

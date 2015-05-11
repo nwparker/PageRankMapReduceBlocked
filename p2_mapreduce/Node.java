@@ -28,6 +28,8 @@ public class Node implements Writable {
 		
 		if(incoming != null) this.incoming = incoming;
 		else this.incoming = new float[] {};
+		
+		this.is_original = false;
 	}
 	
 	public Node(int Id) {
@@ -40,7 +42,7 @@ public class Node implements Writable {
 	
 	//Reconstruct from toString
 	public Node(String nodeStr){
-		String[] mySplit = nodeStr.split(",");
+		String[] mySplit = nodeStr.split("\t")[1].split(",");
 		this.Id = Integer.parseInt(mySplit[0]);
 		this.rank = Float.parseFloat(mySplit[1]);
 		
@@ -53,14 +55,19 @@ public class Node implements Writable {
 		this.outgoing = outgoing;
 		
 		//get incoming
-		String [] incoming_str = mySplit[3].split(" ");
-		float[] incoming = new float[incoming_str.length];
-		for (int i=0; i<incoming_str.length; i++){
-			incoming[i] = Float.parseFloat(incoming_str[i]);
+		if (mySplit.length > 3) {
+			String [] incoming_str = mySplit[3].split(" ");
+			float[] incoming = new float[incoming_str.length];
+			for (int i=0; i<incoming_str.length; i++){
+				incoming[i] = Float.parseFloat(incoming_str[i]);
+			}
+			this.incoming = incoming;
+		} else {
+			this.incoming = new float[] {};
 		}
-		this.incoming = incoming;
 		
-		this.is_original = false;
+		// constructing from file, original is true
+		this.is_original = true;
 	}
 	
 	
