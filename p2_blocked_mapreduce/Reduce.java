@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -16,6 +18,7 @@ public class Reduce extends Reducer<IntWritable, Node, IntWritable, FloatWritabl
 	
 	// the precision we want when converting from float to long for the Hadoop counter
 	private static final int PRECISION = 1000;
+	private static final Log LOG = LogFactory.getLog(Reduce.class);
 	
     public void reduce(IntWritable block_id, Iterable<Node> nodes, Context context)
     	throws IOException, InterruptedException {
@@ -31,7 +34,7 @@ public class Reduce extends Reducer<IntWritable, Node, IntWritable, FloatWritabl
     	while(iter.hasNext()) {
     		Node node = (Node) iter.next();
     		old_node_ranks.put(node.Id, node);
-    		node_list[counter] = node;
+    		node_list[counter] = new Node(node.toString());
     		counter++;
     	}
     	

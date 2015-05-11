@@ -40,7 +40,7 @@ public class BlockedPageRank {
 		// temp
 		Path outputDir = new Path("output");
 		// Path inputDir = new Path("input");
-		Path inputPath = new Path("nodes_simple.txt");
+		Path inputPath = new Path("nodes_simple_test1.txt");
 		Path originalInput = inputPath;
 		// Path inputFile = new Path("nodes_simple.txt");
 
