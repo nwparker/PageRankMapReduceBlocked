@@ -38,10 +38,6 @@ public class Node implements Writable {
 		this(Id, 0, new int[] {}, new float[] {});
 	}
 	
-	public int getBlockID() {
-		return BlockIDFinder.BlockIdOfNode(this.Id);
-	}
-	
 	//Reconstruct from toString
 	public Node(String nodeStr){		
 		String[] mySplit = nodeStr.split(",");
