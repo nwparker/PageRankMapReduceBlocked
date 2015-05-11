@@ -1,5 +1,8 @@
 package p2_mapreduce;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -87,29 +90,34 @@ public class PageRank {
 	}
 	
 	// Tests
-//	public static void main(String[] args) {
-//		System.out.println("test");
-//		
-//		Node[] nodes = new Node[8];
-//		nodes[0] = new Node("1,0.125,2 3 4,");
-//		nodes[1] = new Node("2,0.125,1,");
-//		nodes[2] = new Node("3,0.125,1,");
-//		nodes[3] = new Node("4,0.125,1 5 6 7 8,");
-//		nodes[4] = new Node("5,0.125,,");
-//		nodes[5] = new Node("6,0.125,,");
-//		nodes[6] = new Node("7,0.125,,");
-//		nodes[7] = new Node("8,0.125,,");
-//		
-//		HashMap<Integer, Float> ranks2 = pagerankBoundaries(nodes);
-//		System.out.println(ranks2);
-//		
-//		//try to sum
-//		float sum = 0;
-//    	for(Entry<Integer, Float> entry : ranks2.entrySet()) {
-//    		sum += entry.getValue();
-//    	}
-//    	System.out.println("sum= "+sum);
-//
-//	}
+	public static void main(String[] args) throws IOException {
+		System.out.println("test");
+		
+		Node[] nodes = new Node[685013];
+		BufferedReader br = new BufferedReader(new FileReader("nodes_simple.txt"));  
+		String line = null;
+		int idx = 0;
+		while ((line = br.readLine()) != null){
+			if (line != null && !line.equals("")){
+				String[] mySplit = line.toString().split("\t");
+				if (mySplit.length>=1){
+					nodes[idx] = new Node(mySplit[1]);
+					idx++;
+				}
+			}
+		}
+		br.close();
+		
+		HashMap<Integer, Float> ranks2 = pagerankBoundaries(nodes);
+		System.out.println(ranks2);
+		
+		//try to sum
+		float sum = 0;
+    	for(Entry<Integer, Float> entry : ranks2.entrySet()) {
+    		sum += entry.getValue();
+    	}
+    	System.out.println("sum= "+sum);
+
+	}
 	
 }
