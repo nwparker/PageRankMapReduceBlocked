@@ -3,9 +3,9 @@ package p2_mapreduce;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.ArrayList;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.io.Writable;
 
 public class Node implements Writable {
@@ -17,7 +17,9 @@ public class Node implements Writable {
 	
 	public static final char DELIM = ',';
 	public static final char DELIM2 = ' ';
-	
+
+	private static final Log LOG = LogFactory.getLog(Node.class);
+
 	public Node(){}
 	
 	public Node(int Id, float rank, int[] outgoing, float[] incoming) {
@@ -41,18 +43,23 @@ public class Node implements Writable {
 	}
 	
 	//Reconstruct from toString
-	public Node(String nodeStr){
+	public Node(String nodeStr){		
 		String[] mySplit = nodeStr.split("\t")[1].split(",");
+		
 		this.Id = Integer.parseInt(mySplit[0]);
 		this.rank = Float.parseFloat(mySplit[1]);
 		
 		//get outgoing
-		String [] outgoing_str = mySplit[2].split(" ");
-		int[] outgoing = new int[outgoing_str.length];
-		for (int i=0; i<outgoing_str.length; i++){
-			outgoing[i] = Integer.parseInt(outgoing_str[i]);
+		if(mySplit.length > 2) {
+			String [] outgoing_str = mySplit[2].split(" ");
+			int[] outgoing = new int[outgoing_str.length];
+			for (int i=0; i<outgoing_str.length; i++){
+				outgoing[i] = Integer.parseInt(outgoing_str[i]);
+			}
+			this.outgoing = outgoing;
+		} else {
+			this.outgoing = new int[] {};
 		}
-		this.outgoing = outgoing;
 		
 		//get incoming
 		if (mySplit.length > 3) {

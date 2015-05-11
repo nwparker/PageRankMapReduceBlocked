@@ -22,9 +22,17 @@ public class Map extends Mapper<LongWritable, Text, IntWritable, Node> {
 		node_obj.is_original = true;
     	context.write(new IntWritable(node_obj.Id), node_obj);
 
+    	LOG.info("OUTGOING FOR " + node_obj.Id);
+    	for(int i: node_obj.outgoing) {
+    		LOG.info(i);
+    	}
+    	
     	for(int dest_id: node_obj.outgoing) {
     		// Emit the partial page ranks for the dest nodes
-            context.write(new IntWritable(dest_id), new Node(node_obj.Id, node_obj.rank / node_obj.outgoing.length, null, null));
+    		Node dest_node = new Node(dest_id, node_obj.rank / node_obj.outgoing.length, null, null);
+    		dest_node.is_original = false;
+    		LOG.info(dest_node.toString());
+            context.write(new IntWritable(dest_id), dest_node);
     	}
     }
 }
