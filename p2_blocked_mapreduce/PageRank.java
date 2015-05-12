@@ -15,45 +15,47 @@ public class PageRank {
 	/*
 	 * Compute pageranks of the nodes
 	 */
-	public static HashMap<Integer, Float> pagerankBoundaries(Node[] nodes) {
-		int num_nodes = nodes.length;
+	public static HashMap<Integer, Float> pagerankBoundaries(HashMap<Integer, Node> nodes) {
+
+		int num_nodes = nodes.size();
 		HashMap<Integer, Float> cur_ranks = new HashMap<>();
 		HashMap<Integer, Float> new_ranks = new HashMap<>();
 		boolean converged = false;
 		
-		for(Node n: nodes) {
-			cur_ranks.put(n.Id, n.rank);
-		}
+		// get current page rank of each node
+		for(Entry<Integer, Node> e: nodes.entrySet())
+			cur_ranks.put(e.getKey(), e.getValue().rank);
 		
 		int num_iterations = 0;
 		while(!converged && (num_iterations < MAX_ITERATIONS || MAX_ITERATIONS == -1)) {
 			num_iterations++;
 			
-			// initialize new ranks to damping/N
-			for(Node n: nodes) {
-				new_ranks.put(n.Id, (float) (1 - DAMPING_FACTOR)/num_nodes);
-			}
+			// initialize new ranks of each node to damping/N
+			for(Entry<Integer, Node> e: nodes.entrySet())
+				new_ranks.put(e.getKey(), (float) (1 - DAMPING_FACTOR)/num_nodes);
 			
 			// Iterate through nodes and update ranks
-			for(Node n: nodes) {
+			for(Entry<Integer, Node> e: nodes.entrySet()) {
+				Node n = e.getValue();
 				int num_outgoing = n.outgoing.length;
 
 				// add rank values from incoming boundary edges
-				for(float val: n.incoming) {
+				for(float val: n.incoming)
 					new_ranks.put(n.Id, new_ranks.get(n.Id) + val);
-				}
 				
-				// propagate rank. if no outgoing edges, distribute evenly to all nodes
+				// propagate rank of current node to its out going links
 				float out_flow;
 				if (num_outgoing > 0) {
 					for(int target_id: n.outgoing) {
 						out_flow = (float)(DAMPING_FACTOR * cur_ranks.get(n.Id) / num_outgoing);
 						new_ranks.put(target_id, new_ranks.get(target_id) + out_flow);
 					}
+				
+				// if no outgoing edges, distribute evenly to all nodes in block
 				} else {
-					for(Node n2: nodes) {
+					for(Entry<Integer, Node> e2: nodes.entrySet()) {
 						out_flow = (float)(DAMPING_FACTOR * cur_ranks.get(n.Id) / num_nodes);
-						new_ranks.put(n2.Id, new_ranks.get(n2.Id) + out_flow);
+						new_ranks.put(e2.getKey(), new_ranks.get(e2.getKey()) + out_flow);
 					}
 				}
 			}
@@ -64,10 +66,10 @@ public class PageRank {
 			// check convergence
 			float diffsum = 0;
 
-			for(Node n: nodes) {
-				// add the percent change from the original rank
-				diffsum += Math.abs((cur_ranks.get(n.Id) - new_ranks.get(n.Id)) / cur_ranks.get(n.Id));
-			}
+			// add the percent change from the original rank
+			for(Entry<Integer, Node> e: nodes.entrySet())
+				diffsum += Math.abs((cur_ranks.get(e.getKey()) - new_ranks.get(e.getKey())) / cur_ranks.get(e.getKey()));
+			
 			System.out.println(diffsum + ", " + CONVERGENCE_THRESHOLD * num_nodes);
 			if(diffsum < CONVERGENCE_THRESHOLD * num_nodes) {
 				converged = true;
@@ -82,19 +84,13 @@ public class PageRank {
 		return cur_ranks;
 	}
 	
-	public static Node[] initializeRanks(Node[] nodes) {
-		for(Node n: nodes) {
-			n.rank = 1.0f / nodes.length;
-		}
-		return nodes;
-	}
 	
 	// Tests
 	public static void main(String[] args) throws IOException {
 		System.out.println("test");
 		
-		Node[] nodes = new Node[685013];
-		BufferedReader br = new BufferedReader(new FileReader("nodes_simple.txt"));  
+		Node[] nodes = new Node[8];
+		BufferedReader br = new BufferedReader(new FileReader("nodes_simple_test1.txt"));  
 		String line = null;
 		int idx = 0;
 		while ((line = br.readLine()) != null){
@@ -108,7 +104,12 @@ public class PageRank {
 		}
 		br.close();
 		
-		HashMap<Integer, Float> ranks2 = pagerankBoundaries(nodes);
+		HashMap<Integer, Node> node_map = new HashMap<Integer, Node>();
+		for (Node n: nodes) {
+			System.out.println(n.toString());
+			node_map.put(n.Id, n);
+		}		
+		HashMap<Integer, Float> ranks2 = pagerankBoundaries(node_map);
 		System.out.println(ranks2);
 		
 		//try to sum
