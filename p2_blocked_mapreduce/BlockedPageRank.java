@@ -54,8 +54,7 @@ public class BlockedPageRank {
 			System.out.println("Output path: " + jobOutputPath);
 			System.out.println("============================================");
 
-			converged = performMrJob(inputPath, jobOutputPath, numNodes) < CONVERGENCE_THRESHOLD
-					* numNodes;
+			converged = performMrJob(inputPath, jobOutputPath, numNodes);
 			inputPath = jobOutputPath;
 			iter++;
 		}
@@ -73,7 +72,7 @@ public class BlockedPageRank {
 		return lines.size();
 	}
 
-	public static double performMrJob(Path inputPath, Path outputPath,
+	public static boolean performMrJob(Path inputPath, Path outputPath,
 			int numNodes) throws Exception {
 		Configuration conf = new Configuration();
 		conf.setInt("num_nodes", numNodes);
@@ -110,7 +109,7 @@ public class BlockedPageRank {
 		System.out.println("Distance to convergence: " + (convergence - CONVERGENCE_THRESHOLD * 1000 * numNodes));
 		System.out.println("=====================================");
 
-		return convergence;
+		return convergence < CONVERGENCE_THRESHOLD * 1000 * numNodes;
 	}
 
 }
