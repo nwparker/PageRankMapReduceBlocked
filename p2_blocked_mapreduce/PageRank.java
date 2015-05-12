@@ -18,8 +18,8 @@ public class PageRank {
 	public static HashMap<Integer, Float> pagerankBoundaries(HashMap<Integer, Node> nodes, HashMap<Integer, Node> node_boundaries) {
 
 		int num_nodes = nodes.size();
-		HashMap<Integer, Float> cur_ranks = new HashMap<>();
-		HashMap<Integer, Float> new_ranks = new HashMap<>();
+		HashMap<Integer, Float> cur_ranks = new HashMap<Integer, Float>();
+		HashMap<Integer, Float> new_ranks = new HashMap<Integer, Float>();
 		boolean converged = false;
 		
 		// get current page rank of each node
@@ -87,7 +87,7 @@ public class PageRank {
 			}
 			
 			// update page ranks for next iteration
-			cur_ranks = new HashMap<>(new_ranks);
+			cur_ranks = new HashMap<Integer, Float>(new_ranks);
 			new_ranks.clear();
 		}
 		
