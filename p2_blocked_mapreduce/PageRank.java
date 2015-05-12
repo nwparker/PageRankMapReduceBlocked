@@ -46,7 +46,7 @@ public class PageRank {
 					float boundary_val = boundary_node.rank/boundary_node.outgoing.length;
 					nodeRank += boundary_val * DAMPING_FACTOR;
 				}
-					
+
 				//Put rank into node
 				new_ranks.put(n.Id, nodeRank);
 				
@@ -55,6 +55,8 @@ public class PageRank {
 				int num_outgoing = n.outgoing.length;
 				if (num_outgoing > 0) {
 					for(int target_id: n.outgoing) {
+						// If the id isnt in the nodes map, the target is out of the block, just skip it
+						if(new_ranks.get(target_id) == null) continue;
 						out_flow = (float)(DAMPING_FACTOR * cur_ranks.get(n.Id) / num_outgoing);
 						new_ranks.put(target_id, new_ranks.get(target_id) + out_flow);
 					}
@@ -68,8 +70,8 @@ public class PageRank {
 				}
 			}
 			
-			System.out.println("Iteration: " + num_iterations);
-			System.out.println("Ranks: " + new_ranks);
+//			System.out.println("Iteration: " + num_iterations);
+//			System.out.println("Ranks: " + new_ranks);
 
 			// check convergence
 			float diffsum = 0;
@@ -78,10 +80,10 @@ public class PageRank {
 			for(Entry<Integer, Node> e: nodes.entrySet())
 				diffsum += Math.abs((cur_ranks.get(e.getKey()) - new_ranks.get(e.getKey())) / cur_ranks.get(e.getKey()));
 			
-			System.out.println(diffsum + ", " + CONVERGENCE_THRESHOLD * num_nodes);
+//			System.out.println(diffsum + ", " + CONVERGENCE_THRESHOLD * num_nodes);
 			if(diffsum < CONVERGENCE_THRESHOLD * num_nodes) {
 				converged = true;
-				System.out.println("Converged!");
+//				System.out.println("Converged!");
 			}
 			
 			// update page ranks for next iteration
@@ -92,41 +94,40 @@ public class PageRank {
 		return cur_ranks;
 	}
 	
-	
 	// Tests
-	public static void main(String[] args) throws IOException {
-		System.out.println("test");
-		
-		Node[] nodes = new Node[8];
-		BufferedReader br = new BufferedReader(new FileReader("nodes_simple_test1.txt"));  
-		String line = null;
-		int idx = 0;
-		while ((line = br.readLine()) != null){
-			if (line != null && !line.equals("")){
-				String[] mySplit = line.toString().split("\t");
-				if (mySplit.length>=1){
-					nodes[idx] = new Node(mySplit[1]);
-					idx++;
-				}
-			}
-		}
-		br.close();
-		
-		HashMap<Integer, Node> node_map = new HashMap<Integer, Node>();
-		for (Node n: nodes) {
-			System.out.println(n.toString());
-			node_map.put(n.Id, n);
-		}
-		HashMap<Integer, Float> ranks2 = pagerankBoundaries(node_map, node_map);
-		System.out.println(ranks2);
-		
-		//try to sum
-		float sum = 0;
-    	for(Entry<Integer, Float> entry : ranks2.entrySet()) {
-    		sum += entry.getValue();
-    	}
-    	System.out.println("sum= "+sum);
-
-	}
+//	public static void main(String[] args) throws IOException {
+//		System.out.println("test");
+//		
+//		Node[] nodes = new Node[8];
+//		BufferedReader br = new BufferedReader(new FileReader("nodes_simple_test1.txt"));  
+//		String line = null;
+//		int idx = 0;
+//		while ((line = br.readLine()) != null){
+//			if (line != null && !line.equals("")){
+//				String[] mySplit = line.toString().split("\t");
+//				if (mySplit.length>=1){
+//					nodes[idx] = new Node(mySplit[1]);
+//					idx++;
+//				}
+//			}
+//		}
+//		br.close();
+//		
+//		HashMap<Integer, Node> node_map = new HashMap<Integer, Node>();
+//		for (Node n: nodes) {
+//			System.out.println(n.toString());
+//			node_map.put(n.Id, n);
+//		}
+//		HashMap<Integer, Float> ranks2 = pagerankBoundaries(node_map, node_map);
+//		System.out.println(ranks2);
+//		
+//		//try to sum
+//		float sum = 0;
+//    	for(Entry<Integer, Float> entry : ranks2.entrySet()) {
+//    		sum += entry.getValue();
+//    	}
+//    	System.out.println("sum= "+sum);
+//
+//	}
 	
 }

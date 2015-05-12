@@ -2,11 +2,9 @@ package p2_mapreduce;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.mapreduce.Reducer;
 
@@ -14,8 +12,7 @@ import org.apache.hadoop.mapreduce.Reducer;
  * IN: node id -> list of rank flows
  * OUT: node id -> pagerank
  */
-public class Reduce extends Reducer<IntWritable, Node, IntWritable, FloatWritable> {
-	
+public class Reduce extends Reducer<IntWritable, Node, IntWritable, Node> {	
 	// the precision we want when converting from float to long for the Hadoop counter
 	private static final int PRECISION = 1000;
 	private static final Log LOG = LogFactory.getLog(Reduce.class);
@@ -24,31 +21,37 @@ public class Reduce extends Reducer<IntWritable, Node, IntWritable, FloatWritabl
     	throws IOException, InterruptedException {
     	
     	// get the page ranks of nodes before updating with page rank algorithm
-    	HashMap<Integer, Node> old_node_ranks = new HashMap<Integer, Node>();
+    	HashMap<Integer, Float> old_node_ranks = new HashMap<Integer, Float>();
+    	HashMap<Integer, Node> node_map = new HashMap<Integer, Node>();
+    	HashMap<Integer, Node> boundary_nodes = new HashMap<Integer, Node>();
     	
-    	// get list of nodes to pass into pagerankBoundaries; TODO: change method sig of pagerankBoundaries to take Hashmap?
-    	Node[] node_list = new Node[context.getConfiguration().getInt("num_nodes", -1)]; // should never be -1    	
     	Iterator<Node> iter = nodes.iterator();
-    	int counter = 0;
-    	
     	while(iter.hasNext()) {
     		Node node = (Node) iter.next();
-    		old_node_ranks.put(node.Id, node);
-    		node_list[counter] = new Node(node.toString());
-    		counter++;
+    		if(node.is_boundary) {
+    			// add this node as a boundary node for this block
+    			boundary_nodes.put(node.Id, new Node(node.toString()));
+    		} else {
+	    		// copy the node and ranks over to data structures
+	    		old_node_ranks.put(node.Id, node.rank);
+	    		node_map.put(node.Id, new Node(node.toString()));
+    		}
     	}
     	
     	// calculate new page ranks for nodes in this block
-    	HashMap<Integer, Float> new_node_ranks = PageRank.pagerankBoundaries(node_list);
+    	HashMap<Integer, Float> new_node_ranks = PageRank.pagerankBoundaries(node_map, boundary_nodes);
     	
     	// for each node in the block, emit the node id and its new page rank and update residual errors counter
-    	for(Entry<Integer, Float> entry : new_node_ranks.entrySet()) {
-    		int node_id = entry.getKey();
-    		float new_rank = entry.getValue();
-    		float old_rank = old_node_ranks.get(node_id).rank;
-    		    		
-    		// emit node-id with new page rank
-    	    context.write(new IntWritable(node_id), new FloatWritable(new_rank));
+    	for(int node_id : new_node_ranks.keySet()) {
+    		float new_rank = new_node_ranks.get(node_id);
+    		float old_rank = old_node_ranks.get(node_id);
+    		
+    		// Set the new rank for this node
+    		Node node = node_map.get(node_id);
+    		node.rank = new_rank;
+    		
+    		// emit the node object with its new page rank
+    	    context.write(new IntWritable(node_id), node);
     	    
     		// update the residual counter
     		long residual = (long) (PRECISION * Math.abs((old_rank - new_rank) / old_rank));

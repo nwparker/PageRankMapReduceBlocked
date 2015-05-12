@@ -9,11 +9,12 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.io.Writable;
 
 public class Node implements Writable {
-	protected int Id;						// node id
-	protected float rank;					// node's current pagerank
-	protected int[] outgoing;	// all outgoing edges
-	protected int[] incoming;	// incoming pagerank VALUES from other blocks
+	protected int Id;				// node id
+	protected float rank;			// node's current pagerank
+	protected int[] outgoing;		// all outgoing edges
+	protected int[] incoming;		// incoming pagerank VALUES from other blocks
 	protected boolean is_original;	// indicates the node is the original node
+	protected boolean is_boundary;	// indicates that the node is a boundary node for some other block
 	
 	public static final char DELIM = ',';
 	public static final char DELIM2 = ' ';
@@ -32,14 +33,11 @@ public class Node implements Writable {
 		else this.incoming = new int[] {};
 		
 		this.is_original = false;
+		this.is_boundary = false;
 	}
 	
 	public Node(int Id) {
 		this(Id, 0, new int[] {}, new int[] {});
-	}
-	
-	public int getBlockID() {
-		return BlockIDFinder.BlockIdOfNode(this.Id);
 	}
 	
 	//Reconstruct from toString
@@ -54,6 +52,7 @@ public class Node implements Writable {
 			String [] outgoing_str = mySplit[2].split(" ");
 			int[] outgoing = new int[outgoing_str.length];
 			for (int i=0; i<outgoing_str.length; i++){
+				if(outgoing_str[i].isEmpty()) continue;
 				outgoing[i] = Integer.parseInt(outgoing_str[i]);
 			}
 			this.outgoing = outgoing;
@@ -99,7 +98,7 @@ public class Node implements Writable {
 		sb.append(DELIM);
 		//convert incoming values
 		if (this.incoming.length > 0){
-			for(float income: this.incoming){
+			for(int income: this.incoming){
 				sb.append(income);
 				sb.append(DELIM2);
 			}
@@ -124,6 +123,7 @@ public class Node implements Writable {
 			incoming[i] = in.readInt();
 		}
 		is_original = in.readBoolean();
+		is_boundary = in.readBoolean();
 	}
 
 	@Override
@@ -136,9 +136,10 @@ public class Node implements Writable {
 		}
 
 		out.writeInt(incoming.length);
-		for(float f: incoming) {
-			out.writeFloat(f);
+		for(int i: incoming) {
+			out.writeInt(i);
 		}
 		out.writeBoolean(is_original);
+		out.writeBoolean(is_boundary);
 	}
 }
