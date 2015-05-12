@@ -12,7 +12,7 @@ public class Node implements Writable {
 	protected int Id;						// node id
 	protected float rank;					// node's current pagerank
 	protected int[] outgoing;	// all outgoing edges
-	protected float[] incoming;	// incoming pagerank VALUES from other blocks
+	protected int[] incoming;	// incoming pagerank VALUES from other blocks
 	protected boolean is_original;	// indicates the node is the original node
 	
 	public static final char DELIM = ',';
@@ -22,20 +22,20 @@ public class Node implements Writable {
 
 	public Node(){}
 	
-	public Node(int Id, float rank, int[] outgoing, float[] incoming) {
+	public Node(int Id, float rank, int[] outgoing, int[] incoming) {
 		this.Id = Id;
 		this.rank = rank;
 		if(outgoing != null) this.outgoing = outgoing;
 		else this.outgoing = new int[] {};
 		
 		if(incoming != null) this.incoming = incoming;
-		else this.incoming = new float[] {};
+		else this.incoming = new int[] {};
 		
 		this.is_original = false;
 	}
 	
 	public Node(int Id) {
-		this(Id, 0, new int[] {}, new float[] {});
+		this(Id, 0, new int[] {}, new int[] {});
 	}
 	
 	public int getBlockID() {
@@ -64,13 +64,13 @@ public class Node implements Writable {
 		//get incoming
 		if (mySplit.length > 3) {
 			String [] incoming_str = mySplit[3].split(" ");
-			float[] incoming = new float[incoming_str.length];
+			int[] incoming = new int[incoming_str.length];
 			for (int i=0; i<incoming_str.length; i++){
-				incoming[i] = Float.parseFloat(incoming_str[i]);
+				incoming[i] = Integer.parseInt(incoming_str[i]);
 			}
 			this.incoming = incoming;
 		} else {
-			this.incoming = new float[] {};
+			this.incoming = new int[] {};
 		}
 		
 		// constructing from file, original is true
@@ -119,9 +119,9 @@ public class Node implements Writable {
 		}
 	
 		int incoming_size = in.readInt();
-		incoming = new float[incoming_size];
+		incoming = new int[incoming_size];
 		for(int i = 0; i < incoming_size; i++) {
-			incoming[i] = in.readFloat();
+			incoming[i] = in.readInt();
 		}
 		is_original = in.readBoolean();
 	}

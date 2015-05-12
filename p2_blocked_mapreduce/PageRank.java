@@ -15,7 +15,7 @@ public class PageRank {
 	/*
 	 * Compute pageranks of the nodes
 	 */
-	public static HashMap<Integer, Float> pagerankBoundaries(HashMap<Integer, Node> nodes) {
+	public static HashMap<Integer, Float> pagerankBoundaries(HashMap<Integer, Node> nodes, HashMap<Integer, Node> node_boundaries) {
 
 		int num_nodes = nodes.size();
 		HashMap<Integer, Float> cur_ranks = new HashMap<>();
@@ -29,22 +29,30 @@ public class PageRank {
 		int num_iterations = 0;
 		while(!converged && (num_iterations < MAX_ITERATIONS || MAX_ITERATIONS == -1)) {
 			num_iterations++;
+			float initRank = (float) ((1 - DAMPING_FACTOR)/num_nodes);
 			
-			// initialize new ranks of each node to damping/N
-			for(Entry<Integer, Node> e: nodes.entrySet())
-				new_ranks.put(e.getKey(), (float) (1 - DAMPING_FACTOR)/num_nodes);
+			for(Entry<Integer, Node> e: nodes.entrySet()) {
+				new_ranks.put(e.getKey(), initRank); //must be done in this loop
+			}
 			
 			// Iterate through nodes and update ranks
 			for(Entry<Integer, Node> e: nodes.entrySet()) {
 				Node n = e.getValue();
-				int num_outgoing = n.outgoing.length;
-
+				float nodeRank = new_ranks.get(n.Id);
+				
 				// add rank values from incoming boundary edges
-				for(float val: n.incoming)
-					new_ranks.put(n.Id, new_ranks.get(n.Id) + val);
+				for(int boundary_node_id: n.incoming){
+					Node boundary_node = node_boundaries.get(boundary_node_id);
+					float boundary_val = boundary_node.rank/boundary_node.outgoing.length;
+					nodeRank += boundary_val * DAMPING_FACTOR;
+				}
+					
+				//Put rank into node
+				new_ranks.put(n.Id, nodeRank);
 				
 				// propagate rank of current node to its out going links
 				float out_flow;
+				int num_outgoing = n.outgoing.length;
 				if (num_outgoing > 0) {
 					for(int target_id: n.outgoing) {
 						out_flow = (float)(DAMPING_FACTOR * cur_ranks.get(n.Id) / num_outgoing);
@@ -108,8 +116,8 @@ public class PageRank {
 		for (Node n: nodes) {
 			System.out.println(n.toString());
 			node_map.put(n.Id, n);
-		}		
-		HashMap<Integer, Float> ranks2 = pagerankBoundaries(node_map);
+		}
+		HashMap<Integer, Float> ranks2 = pagerankBoundaries(node_map, node_map);
 		System.out.println(ranks2);
 		
 		//try to sum
