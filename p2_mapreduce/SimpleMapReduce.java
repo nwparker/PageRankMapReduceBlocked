@@ -1,7 +1,6 @@
 package p2_mapreduce;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
@@ -27,6 +26,7 @@ public class SimpleMapReduce {
 	}
 
 	private static final double CONVERGENCE_THRESHOLD = 0.001;
+	private static int MAX_ITERATIONS = -1;
 	private static final Log LOG = LogFactory.getLog(SimpleMapReduce.class);
 
 	public static void main(String[] args) throws Exception {
@@ -34,29 +34,29 @@ public class SimpleMapReduce {
 		BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.INFO);
 
-		 Path inputPath = new Path(args[0]);
-		 Path outputDir = new Path(args[1]);
-
-		// temp
-//		Path outputDir = new Path("output");
-//		Path inputPath = new Path("nodes_simple_test1.txt");
+		// set input/output paths
+		Path inputPath = new Path(args[0]);
+		Path outputDir = new Path(args[1]);
 		Path originalInput = inputPath;
+		
+		// set max iterations
+		MAX_ITERATIONS = Integer.parseInt(args[2]);
 
 		int numNodes = getNumNodes(originalInput);
 
 		boolean converged = false;
 		int iter = 0;
-		while (!converged) {
+		while (!converged && iter < MAX_ITERATIONS) {
 			Path jobOutputPath = new Path(outputDir, String.valueOf(iter));
 			jobOutputPath.getFileSystem(conf).delete(jobOutputPath, true);
 
-			System.out.println("======================================");
-			System.out.println("=  Iteration:    " + iter);
-			System.out.println("=  Input path:   " + inputPath);
-			System.out.println("=  Output path:  " + jobOutputPath);
-			System.out.println("======================================");
+			System.out.println("============== Iteration Info ==============");
+			System.out.println("Iteration:   " + iter);
+			System.out.println("Input path:  " + inputPath);
+			System.out.println("Output path: " + jobOutputPath);
+			System.out.println("============================================");
 
-			converged = calcPageRank(inputPath, jobOutputPath, numNodes) < CONVERGENCE_THRESHOLD
+			converged = performMrJob(inputPath, jobOutputPath, numNodes) < CONVERGENCE_THRESHOLD
 					* numNodes;
 			inputPath = jobOutputPath;
 			iter++;
@@ -65,6 +65,9 @@ public class SimpleMapReduce {
 				+ ", we're done");
 	}
 
+	/*
+	 * Get the number of nodes by reading the number of lines in the input file
+	 */
 	public static int getNumNodes(Path path) throws IOException {
 		Configuration conf = new Configuration();
 		FileSystem fs = path.getFileSystem(conf);
@@ -72,7 +75,7 @@ public class SimpleMapReduce {
 		return lines.size();
 	}
 
-	public static double calcPageRank(Path inputPath, Path outputPath,
+	public static double performMrJob(Path inputPath, Path outputPath,
 			int numNodes) throws Exception {
 		Configuration conf = new Configuration();
 		conf.setInt("num_nodes", numNodes);
@@ -97,16 +100,17 @@ public class SimpleMapReduce {
 		if (!job.waitForCompletion(true)) {
 			throw new Exception("Something went wrong with the job");
 		}
-		
-		org.apache.hadoop.mapreduce.Counter residuals = job.getCounters().findCounter(Counter.RESIDUALS);
+
+		org.apache.hadoop.mapreduce.Counter residuals = job.getCounters()
+				.findCounter(Counter.RESIDUALS);
 		long convergence = residuals.getValue();
 		residuals.setValue(0);
 
-		System.out.println("======================================");
-		System.out.println("=  Num nodes:           " + numNodes);
-		// System.out.println("=  Summed convergence:  " + total_convergence);
-		System.out.println("=  Convergence:         " + convergence);
-		System.out.println("======================================");
+		System.out.println("============== Results ==============");
+		System.out.println("Num nodes:               " + numNodes);
+		System.out.println("Residual error:          " + convergence);
+		System.out.println("Distance to convergence: " + (convergence - CONVERGENCE_THRESHOLD * 1000 * numNodes));
+		System.out.println("=====================================");
 
 		return convergence;
 	}

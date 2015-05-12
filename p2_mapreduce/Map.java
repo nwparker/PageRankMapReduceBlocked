@@ -28,7 +28,7 @@ public class Map extends Mapper<LongWritable, Text, IntWritable, Node> {
 	    		// Emit the partial page ranks for the dest nodes
 	    		Node dest_node = new Node(dest_id, node_obj.rank / node_obj.outgoing.length, null, null);
 	    		dest_node.is_original = false;
-//	    		LOG.info(dest_node.toString());
+	    		LOG.info(dest_node.toString());
 	            context.write(new IntWritable(dest_id), dest_node);
 	    	}
     	} else {
